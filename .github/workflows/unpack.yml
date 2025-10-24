@@ -1,9 +1,8 @@
 name: Unpack ZIP to repo
 on:
   push:
-    branches: [ "main" ]
-    paths:
-      - "*.zip"
+    branches: [ "main" ]     # триггер при любом пуше в main
+  workflow_dispatch:          # ручной запуск из вкладки Actions
 
 permissions:
   contents: write
@@ -14,15 +13,19 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Find ZIP
+      - name: Find ZIP in repo root
         run: |
           set -e
-          ZIP=$(ls -1 *.zip | head -n1 || true)
+          ls -la
+          ZIP=$(ls -1 *.zip 2>/dev/null | head -n1 || true)
           if [ -z "$ZIP" ]; then
             echo "No ZIP found in repo root"; exit 1
           fi
           echo "ZIP_NAME=$ZIP" >> $GITHUB_ENV
+          echo "Found ZIP: $ZIP"
 
       - name: Unzip into repo root
         run: |
